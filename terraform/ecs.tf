@@ -7,6 +7,9 @@ resource "aws_ecs_cluster" "cluster" {
     name  = "containerInsights"
     value = "enabled"
   }
+  tags = {
+    Name = "${local.name_prefix}-ecs-cluster"
+  }
 }
 
 resource "aws_ecs_capacity_provider" "cp_od" {
@@ -25,7 +28,7 @@ resource "aws_ecs_capacity_provider" "cp_od" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "cluster_capacity" {
-  cluster_name       = aws_ecs_cluster.cluster.name
+  cluster_name = aws_ecs_cluster.cluster.name
   capacity_providers = [
     "FARGATE",
     "FARGATE_SPOT",
@@ -46,7 +49,7 @@ resource "aws_autoscaling_group" "asg" {
   desired_capacity          = 0
   health_check_type         = "EC2"
   health_check_grace_period = 300
-  vpc_zone_identifier = data.terraform_remote_state.vpc_workspace.outputs.private_subnet_ids
+  vpc_zone_identifier       = data.terraform_remote_state.vpc_workspace.outputs.private_subnet_ids
   enabled_metrics = [
     "GroupMinSize",
     "GroupMaxSize",
@@ -64,7 +67,7 @@ resource "aws_autoscaling_group" "asg" {
 
   tag {
     key                 = "Name"
-    value               = "${local.name_prefix}-instance"
+    value               = "${local.name_prefix}-asg"
     propagate_at_launch = true
   }
 
@@ -74,25 +77,26 @@ resource "aws_autoscaling_group" "asg" {
 }
 
 resource "aws_launch_template" "template" {
-  name_prefix             = "${local.name_prefix}-lt-"
-  image_id                = var.ec2_instance_ami
-  instance_type           = var.ec2_instance_type
-  key_name                = var.instance_encryption_key_name
+  name_prefix   = "${local.name_prefix}-lt-"
+  image_id      = var.ec2_instance_ami
+  instance_type = var.ec2_instance_type
+  key_name      = var.instance_encryption_key_name
   user_data = base64encode(
     templatefile(
       "${path.module}/templates/userdata.sh",
       {
-        Environment = var.environment
+        Environment  = var.environment
         Organization = var.org_name
       }
     )
   )
-  vpc_security_group_ids  = [aws_security_group.instance_sg.id]
+  vpc_security_group_ids = [aws_security_group.ecs_hosts.id]
 
   block_device_mappings {
     device_name = "/dev/xvda"
     ebs {
       volume_size = 35
+      encrypted   = true
     }
   }
 
@@ -103,7 +107,7 @@ resource "aws_launch_template" "template" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "${local.name_prefix}-instance"
+      Name = "${local.name_prefix}-launch-template"
     }
   }
 }

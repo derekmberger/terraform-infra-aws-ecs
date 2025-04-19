@@ -2,11 +2,11 @@ provider "aws" {
   region = var.aws_region
   default_tags {
     tags = {
-      org             = var.org_name                  # e.g. "biotornic"
-      environment     = var.environment               # e.g. "prod"
-      region          = var.aws_region                # e.g. "us‑east‑1"
-      tfc_workspace   = var.tfc_workspace_name        # your TFC workspace name
-      vcs_repo        = var.vcs_repo                  # your VCS org/name
+      org           = var.org_name           # e.g. "biotornic"
+      environment   = var.environment        # e.g. "prod"
+      region        = var.aws_region         # e.g. "us‑east‑1"
+      tfc_workspace = var.tfc_workspace_name # your TFC workspace name
+      vcs_repo      = var.vcs_repo           # your VCS org/name
     }
   }
 }

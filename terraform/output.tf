@@ -23,5 +23,5 @@ output "ecs_capacity_provider_name" {
 }
 
 output "ecs_host_instance_sg" {
-  value = aws_security_group.instance_sg.id
+  value = aws_security_group.ecs_hosts.id
 }

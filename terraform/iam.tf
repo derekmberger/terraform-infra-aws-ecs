@@ -2,7 +2,7 @@
 # EC2 Instance Role
 ############################
 resource "aws_iam_role" "instance_role" {
-  name                  = "${local.name_prefix}-ecs-instancerole"
+  name                  = "${local.name_prefix}-ecs-instance-role"
   description           = "Allows EC2 instances to call AWS services on your behalf."
   path                  = "/"
   max_session_duration  = 3600
@@ -19,13 +19,13 @@ resource "aws_iam_role" "instance_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "instance_role_attach" {
-  for_each = toset(local.instance_role_managed_policies)
+  for_each   = toset(local.instance_role_managed_policies)
   role       = aws_iam_role.instance_role.name
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/${each.value}"
 }
 
 resource "aws_iam_instance_profile" "instance_profile" {
-  name = "${local.name_prefix}-ecs-instancerole"
+  name = "${local.name_prefix}-ecs-instance-profile"
   role = aws_iam_role.instance_role.name
 }
 
@@ -33,7 +33,7 @@ resource "aws_iam_instance_profile" "instance_profile" {
 # ECS Task Execution Role
 ############################
 resource "aws_iam_role" "ecs_exec_role" {
-  name                 = "${local.name_prefix}-ecs-exec"
+  name                 = "${local.name_prefix}-ecs-exec-role"
   path                 = "/"
   max_session_duration = 3600
 
@@ -48,25 +48,7 @@ resource "aws_iam_role" "ecs_exec_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "ecs_exec_role_attach" {
-  for_each = toset(local.ecs_exec_managed_policies)
+  for_each   = toset(local.ecs_exec_managed_policies)
   role       = aws_iam_role.ecs_exec_role.name
   policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/${each.value}"
-}
-
-locals {
-  # Managed policies for EC2 instance role
-  instance_role_managed_policies = [
-    "AmazonEC2ReadOnlyAccess",
-    "service-role/AmazonEC2ContainerServiceAutoscaleRole",
-    "service-role/AmazonEC2ContainerServiceforEC2Role",
-    "CloudWatchAgentServerPolicy",
-    "AmazonSSMManagedInstanceCore",
-  ]
-
-  # Managed policies for ECS task exec role
-  ecs_exec_managed_policies = [
-    "service-role/AmazonECSTaskExecutionRolePolicy",
-    "AmazonEC2ContainerRegistryReadOnly",
-    "AmazonSSMReadOnlyAccess",
-  ]
 }
