@@ -50,6 +50,7 @@ resource "aws_autoscaling_group" "asg" {
   health_check_type         = "EC2"
   health_check_grace_period = 300
   vpc_zone_identifier       = data.terraform_remote_state.vpc_workspace.outputs.private_subnet_ids
+  protect_from_scale_in     = true
   enabled_metrics = [
     "GroupMinSize",
     "GroupMaxSize",
