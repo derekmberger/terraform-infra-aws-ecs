@@ -16,3 +16,8 @@ resource "tfe_workspace" "workspace" {
     branch         = var.vcs_branch
   }
 }
+
+resource "tfe_workspace_settings" "allow_remote_reference" {
+  workspace_id              = tfe_workspace.workspace.id
+  global_remote_state       = true
+}
