@@ -8,6 +8,7 @@ locals {
     "service-role/AmazonEC2ContainerServiceforEC2Role",
     "CloudWatchAgentServerPolicy",
     "AmazonSSMManagedInstanceCore",
+    "AmazonEC2ContainerRegistryReadOnly",
   ]
 
   # Managed policies for ECS task exec role
