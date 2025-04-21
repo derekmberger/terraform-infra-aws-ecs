@@ -86,8 +86,7 @@ resource "aws_launch_template" "template" {
     templatefile(
       "${path.module}/templates/userdata.sh",
       {
-        Environment  = var.environment
-        Organization = var.org_name
+        cluster_name = aws_ecs_cluster.cluster.name
       }
     )
   )
